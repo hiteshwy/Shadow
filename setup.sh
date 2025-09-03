@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================================
-# DarkNodes Bot Setup Script (Ubuntu 24.04, /root/Shadow path)
+# DarkNodes Bot Setup Script (Auto-detects repo location)
 # ============================================================
 
 echo "🔹 Starting DarkNodes setup..."
@@ -21,10 +21,20 @@ echo \
 sudo apt update
 sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-# 3. Enter your bot folder
-cd /root/Shadow || exit 1
+# 3. Detect Shadow repo path
+if [ -d "/root/Shadow" ]; then
+    BOT_PATH="/root/Shadow"
+elif [ -d "/home/$USER/Shadow" ]; then
+    BOT_PATH="/home/$USER/Shadow"
+else
+    echo "❌ Shadow repo not found in /root or /home/$USER"
+    exit 1
+fi
+
+echo "✅ Using repo path: $BOT_PATH"
 
 # 4. Setup Python virtual environment
+cd "$BOT_PATH" || exit 1
 python3 -m venv venv
 source venv/bin/activate
 pip install --upgrade pip
@@ -44,8 +54,8 @@ Requires=docker.service
 [Service]
 Type=simple
 User=darknodes
-WorkingDirectory=/root/Shadow
-ExecStart=/usr/bin/python3 /root/Shadow/bot.py
+WorkingDirectory=$BOT_PATH
+ExecStart=/usr/bin/python3 $BOT_PATH/bot.py
 Restart=always
 RestartSec=30
 Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
@@ -60,7 +70,7 @@ sudo systemctl daemon-reload
 sudo systemctl enable darknodes-bot.service
 
 # 8. Start the service
-sudo systemctl start darknodes-bot.service
+sudo systemctl restart darknodes-bot.service
 
 # 9. Show status
 sudo systemctl status darknodes-bot.service --no-pager
