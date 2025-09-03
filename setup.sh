@@ -10,7 +10,7 @@ sudo apt update -y
 sudo apt install -y python3 python3-pip python3-venv docker.io unzip
 
 # 2. Enter your bot folder (⚠️ change path if needed)
-cd /root/DarkNodes-Bot || exit 1
+cd /root/Shadow || exit 1
 
 # 3. Setup Python virtual environment
 python3 -m venv venv
